@@ -1,0 +1,35 @@
+<resources>
+    <string name="app_name">Haven</string>
+
+    <string name="error_unhandled">Unhandled error</string>
+
+    <string name="results_empty_text">No shelters found!</string>
+
+    <string name="login_etEmail_hint">Email</string>
+    <string name="login_etPassword_hint">Password</string>
+    <string name="login_btnLogin_text">Login</string>
+    <string name="login_tvRegister_text">No account? Register here.</string>
+    <string name="login_error_invalidLogin">Invalid login</string>
+
+    <string name="registration_etEmail_hint">Email</string>
+    <string name="registration_etPassword_hint">Password</string>
+    <string name="registration_btnRegister_text">Register</string>
+    <string name="registration_tvLogin_text">Have an account? Log in here.</string>
+    <string name="registration_error_invalidRegistration">Invalid registration</string>
+
+    <string name="main_menu_logout">Logout</string>
+    <string name="main_menu_filter">Filter</string>
+    <string name="main_menu_search_title">Search</string>
+
+    <string name="filter_gender_header">Gender</string>
+    <string name="filter_age_header">Age</string>
+    <string name="filter_family_header">Family</string>
+    <string name="filter_veterans_header">Veterans</string>
+    <string name="filter_cbMale_text">Male</string>
+    <string name="filter_cbFemale_text">Female</string>
+    <string name="filter_cbChildren_text">Children</string>
+    <string name="filter_cbYoungAdults_text">Young Adults</string>
+    <string name="filter_cbFamilies_text">Families</string>
+    <string name="filter_cbFamiliesWithNewborns_text">Families w/ Newborns</string>
+    <string name="filter_cbVeterans_text">Veterans</string>
+</resources>

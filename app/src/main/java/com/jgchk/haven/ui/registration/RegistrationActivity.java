@@ -93,8 +93,10 @@ public class RegistrationActivity
     }
 
     private void setUp() {
-        mActivityRegistrationBinding.spnAccountType.setAdapter(new ArrayAdapter<>(
+        ArrayAdapter<User.AccountType> adapter = new ArrayAdapter<>(
                 this, android.R.layout.simple_spinner_item,
-                AppConstants.ACCOUNT_TYPES));
+                AppConstants.ACCOUNT_TYPES);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mActivityRegistrationBinding.spnAccountType.setAdapter(adapter);
     }
 }

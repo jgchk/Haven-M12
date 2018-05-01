@@ -116,13 +116,6 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/tvVacancies"
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:gravity="center_vertical"
-                        android:textColor="@color/primary_text" />
-
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
@@ -135,6 +128,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:visibility="visible"
+                            android:layout_marginTop="4dp"
                             app:np_max="999"
                             app:np_min="1"
                             app:np_orientation="horizontal"

@@ -1,5 +1,7 @@
 package com.jgchk.haven.di.builder;
 
+import com.jgchk.haven.ui.detail.DetailActivity;
+import com.jgchk.haven.ui.detail.DetailActivityModule;
 import com.jgchk.haven.ui.login.LoginActivity;
 import com.jgchk.haven.ui.login.LoginActivityModule;
 import com.jgchk.haven.ui.main.MainActivity;
@@ -27,4 +29,7 @@ public abstract class ActivityBuilder {
 
     @ContributesAndroidInjector(modules = {MainActivityModule.class, FilterDialogProvider.class})
     abstract MainActivity bindMainActivity();
+
+    @ContributesAndroidInjector(modules = {DetailActivityModule.class})
+    abstract DetailActivity bindDetailActivity();
 }

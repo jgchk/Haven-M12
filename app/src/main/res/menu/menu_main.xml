@@ -6,7 +6,7 @@
         android:id="@+id/search"
         android:icon="@drawable/ic_search_white_24dp"
         android:title="@string/main_menu_search_title"
-        app:actionViewClass="android.widget.SearchView"
+        app:actionViewClass="com.jgchk.haven.ui.main.CustomSearchView"
         app:showAsAction="collapseActionView|ifRoom" />
 
     <item

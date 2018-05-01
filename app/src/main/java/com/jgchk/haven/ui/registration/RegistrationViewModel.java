@@ -5,7 +5,6 @@ import android.database.sqlite.SQLiteConstraintException;
 import com.jgchk.haven.data.DataManager;
 import com.jgchk.haven.data.model.db.User;
 import com.jgchk.haven.ui.base.BaseViewModel;
-import com.jgchk.haven.utils.AppLogger;
 import com.jgchk.haven.utils.rx.SchedulerProvider;
 
 public class RegistrationViewModel extends BaseViewModel<RegistrationNavigator> {
@@ -23,9 +22,8 @@ public class RegistrationViewModel extends BaseViewModel<RegistrationNavigator> 
                 .subscribeOn(getSchedulerProvider().io())
                 .observeOn(getSchedulerProvider().ui())
                 .subscribe(response -> {
-                    getDataManager().updateUserInfo(
-                            DataManager.LoggedInMode.LOGGED_IN_MODE_SERVER,
-                            user.email);
+                    getDataManager().updateUserInfo(DataManager.LoggedInMode.LOGGED_IN_MODE_SERVER,
+                            user);
                     setIsLoading(false);
                     getNavigator().openMainActivity();
                 }, throwable -> {

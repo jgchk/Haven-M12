@@ -5,8 +5,10 @@ import android.support.v7.widget.RecyclerView;
 
 import com.jgchk.haven.data.model.db.Shelter;
 import com.jgchk.haven.ui.main.results.ResultsAdapter;
+import com.shawnlin.numberpicker.NumberPicker;
 
 import java.util.List;
+import java.util.Map;
 
 public final class BindingUtils {
 
@@ -22,5 +24,10 @@ public final class BindingUtils {
             adapter.clearItems();
             adapter.addItems(resultsItems);
         }
+    }
+
+    @BindingAdapter("valueChangedListener")
+    public static void bindValueChangedListener(NumberPicker numberPicker, NumberPicker.OnValueChangeListener valueChangeListener) {
+        numberPicker.setOnValueChangedListener(valueChangeListener);
     }
 }

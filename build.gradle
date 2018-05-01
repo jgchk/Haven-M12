@@ -28,7 +28,7 @@ task clean(type: Delete) {
 
 ext {
     // SDK and tools
-    minSdkVersion = 21
+    minSdkVersion = 24
     targetSdkVersion = 27
     compileSdkVersion = 27
 
@@ -44,8 +44,9 @@ ext {
     rxandroidVersion = "2.0.2"
     timberVersion = "4.5.1"
     lifecycleVersion = "1.1.1"
-    googlePlayServicesVersion = "12.0.1"
+    googlePlayServicesVersion = "15.0.0"
     fastCsvVersion = "1.0.2"
+    numberPickerVersion = "2.4.6"
 
     // Test dependencies
     junitVersion = "4.12"

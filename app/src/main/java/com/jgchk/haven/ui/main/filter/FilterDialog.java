@@ -1,5 +1,7 @@
 package com.jgchk.haven.ui.main.filter;
 
+import android.app.Activity;
+import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -23,6 +25,7 @@ public class FilterDialog extends BaseDialog implements FilterNavigator {
 
     @Inject
     FilterViewModel mFilterViewModel;
+    private DialogFilterBinding mDialogFilterBinding;
 
     public static FilterDialog newInstance() {
         FilterDialog fragment = new FilterDialog();
@@ -34,16 +37,38 @@ public class FilterDialog extends BaseDialog implements FilterNavigator {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        DialogFilterBinding binding = DataBindingUtil.inflate(inflater, R.layout.dialog_filter, container, false);
-        View view = binding.getRoot();
+        mDialogFilterBinding = DataBindingUtil.inflate(inflater, R.layout.dialog_filter, container, false);
+        View view = mDialogFilterBinding.getRoot();
 
         AndroidSupportInjection.inject(this);
 
-        binding.setViewModel(mFilterViewModel);
+        mDialogFilterBinding.setViewModel(mFilterViewModel);
 
         mFilterViewModel.setNavigator(this);
 
+        setUp();
+
         return view;
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        super.onDismiss(dialog);
+        final Activity activity = getBaseActivity();
+        if (activity instanceof DialogInterface.OnDismissListener) {
+            ((DialogInterface.OnDismissListener) activity).onDismiss(dialog);
+        }
+    }
+
+    private void setUp() {
+        mDialogFilterBinding.npVacancies.setValue(mFilterViewModel.getVacanciesRestriction());
+        mDialogFilterBinding.cbMale.setChecked(mFilterViewModel.isMaleRestriction());
+        mDialogFilterBinding.cbFemale.setChecked(mFilterViewModel.isFemaleRestriction());
+        mDialogFilterBinding.cbChildren.setChecked(mFilterViewModel.isChildrenRestriction());
+        mDialogFilterBinding.cbYoungAdults.setChecked(mFilterViewModel.isYoungAdultsRestriction());
+        mDialogFilterBinding.cbFamilies.setChecked(mFilterViewModel.isFamiliesRestriction());
+        mDialogFilterBinding.cbFamiliesWithNewborns.setChecked(mFilterViewModel.isFamiliesWithNewbornsRestriction());
+        mDialogFilterBinding.cbVeterans.setChecked(mFilterViewModel.isVeteransRestriction());
     }
 
     public void show(FragmentManager fragmentManager) {

@@ -19,6 +19,7 @@ import javax.inject.Inject;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.functions.Predicate;
 
 public class AppDataManager implements DataManager {
 
@@ -58,10 +59,43 @@ public class AppDataManager implements DataManager {
     }
 
     @Override
-    public Observable<List<Shelter>> getSheltersMatching(String name, int vacancy, Set<Restriction> restrictions) {
-        AppLogger.d("APPDATAMANAGER: " + mDbHelper.getAllShelters());
-        return mDbHelper.getAllShelters();
+    public Observable<Boolean> reserve(Shelter shelter, User user, int numReservations) {
+        return mDbHelper.reserve(shelter, user, numReservations);
     }
+
+    @Override
+    public Observable<Boolean> release(Shelter shelter, User user) {
+        return mDbHelper.release(shelter, user);
+    }
+
+    @Override
+    public Observable<Integer> getVacancies(Shelter shelter) {
+        return mDbHelper.getVacancies(shelter);
+    }
+
+    @Override
+    public Observable<Integer> getReservations(Shelter shelter, User user) {
+        return mDbHelper.getReservations(shelter, user);
+    }
+
+//    @Override
+//    public Single<List<Shelter>> getSheltersMatching(String name, int vacancy, Set<Restriction> restrictions) {
+//        AppLogger.d("APPDATAMANAGER: " + mDbHelper.getAllShelters());
+//        return mDbHelper.getAllShelters()
+//                .flatMapIterable(shelters -> shelters).filter(
+//                        new Predicate<Shelter>() {
+//                            @Override
+//                            public boolean test(Shelter shelter) throws Exception {
+//                                getVacancies(shelter)
+//                            }
+//                        }
+////                        shelter -> {
+////                            shelter.name.toLowerCase().contains(name.toLowerCase())
+////                                    && (shelter.getVacancies() == -1 || shelter.getVacancies() >= vacancy)
+////                                    && shelter.restrictions.containsAll(restrictions);
+////                        })
+//                .toList();
+//    }
 
     @Override
     public void setUserAsLoggedOut() {
@@ -69,29 +103,20 @@ public class AppDataManager implements DataManager {
     }
 
     @Override
-    public void updateUserInfo(LoggedInMode loggedInMode, String email) {
+    public void updateUserInfo(LoggedInMode loggedInMode, User user) {
+        AppLogger.d("UPDATE: " + String.valueOf(user));
         setCurrentUserLoggedInMode(loggedInMode);
-        setCurrentUserEmail(email);
+        setCurrentUser(user);
     }
 
     @Override
-    public String getCurrentUserEmail() {
-        return mPreferencesHelper.getCurrentUserEmail();
+    public User getCurrentUser() {
+        return mPreferencesHelper.getCurrentUser();
     }
 
     @Override
-    public void setCurrentUserEmail(String email) {
-        mPreferencesHelper.setCurrentUserEmail(email);
-    }
-
-    @Override
-    public Long getCurrentUserId() {
-        return mPreferencesHelper.getCurrentUserId();
-    }
-
-    @Override
-    public void setCurrentUserId(Long userId) {
-        mPreferencesHelper.setCurrentUserId(userId);
+    public void setCurrentUser(User user) {
+        mPreferencesHelper.setCurrentUser(user);
     }
 
     @Override
@@ -105,7 +130,32 @@ public class AppDataManager implements DataManager {
     }
 
     @Override
-    public Observable<Location> getLastLocation() {
+    public int getVacanciesQuery() {
+        return mPreferencesHelper.getVacanciesQuery();
+    }
+
+    @Override
+    public void setVacanciesQuery(int vacanciesQuery) {
+        mPreferencesHelper.setVacanciesQuery(vacanciesQuery);
+    }
+
+    @Override
+    public Set<Restriction> getRestrictionsQuery() {
+        return mPreferencesHelper.getRestrictionsQuery();
+    }
+
+    @Override
+    public void addRestrictionQuery(Restriction restriction) {
+        mPreferencesHelper.addRestrictionQuery(restriction);
+    }
+
+    @Override
+    public void removeRestrictionQuery(Restriction restriction) {
+        mPreferencesHelper.removeRestrictionQuery(restriction);
+    }
+
+    @Override
+    public Single<Location> getLastLocation() {
         return mLocationHelper.getLastLocation();
     }
 }

@@ -17,7 +17,7 @@ public class LoginViewModel extends BaseViewModel<LoginNavigator> {
                 .getUserByLogin(email, password)
                 .doOnSuccess(response -> getDataManager().updateUserInfo(
                         DataManager.LoggedInMode.LOGGED_IN_MODE_SERVER,
-                        response.email))
+                        response))
                 .subscribeOn(getSchedulerProvider().io())
                 .observeOn(getSchedulerProvider().ui())
                 .subscribe(user -> {

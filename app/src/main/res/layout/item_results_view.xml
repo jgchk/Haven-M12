@@ -27,7 +27,7 @@
             android:id="@+id/shelter_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{viewModel.distance + ` mi • ` + viewModel.vacancies + ` spots open`}"
+            android:text="@{viewModel.distance + ` mi • ` + viewModel.vacancies + ` vacancies`}"
             android:textColor="@color/secondary_text"
             android:textSize="12sp" />
     </LinearLayout>

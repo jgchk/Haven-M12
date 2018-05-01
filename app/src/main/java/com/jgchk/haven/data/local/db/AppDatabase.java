@@ -10,18 +10,20 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.jgchk.haven.data.local.db.converter.AccountTypeTypeConverter;
-import com.jgchk.haven.data.local.db.converter.LocationTypeConverter;
-import com.jgchk.haven.data.local.db.converter.ReservationMapTypeConverter;
-import com.jgchk.haven.data.local.db.converter.RestrictionSetTypeConverter;
+import com.jgchk.haven.data.local.db.dao.ReservationDao;
+import com.jgchk.haven.data.model.db.Reservation;
+import com.jgchk.haven.utils.typeconverters.AccountTypeTypeConverter;
+import com.jgchk.haven.utils.typeconverters.LocationTypeConverter;
+import com.jgchk.haven.utils.typeconverters.ReservationMapTypeConverter;
+import com.jgchk.haven.utils.typeconverters.RestrictionSetTypeConverter;
 import com.jgchk.haven.data.local.db.dao.ShelterDao;
 import com.jgchk.haven.data.local.db.dao.UserDao;
 import com.jgchk.haven.data.model.db.Shelter;
 import com.jgchk.haven.data.model.db.User;
 
-@Database(entities = {User.class, Shelter.class}, version = 5)
+@Database(entities = {User.class, Shelter.class, Reservation.class}, version = 8)
 @TypeConverters({LocationTypeConverter.class, RestrictionSetTypeConverter.class,
-        ReservationMapTypeConverter.class, AccountTypeTypeConverter.class})
+        AccountTypeTypeConverter.class})
 public abstract class AppDatabase extends RoomDatabase {
 
     private static AppDatabase INSTANCE;
@@ -42,7 +44,6 @@ public abstract class AppDatabase extends RoomDatabase {
                 cv.put("notes", shelter.notes);
                 cv.put("phone", shelter.phone);
                 cv.put("restrictions", RestrictionSetTypeConverter.toString(shelter.restrictions));
-                cv.put("reservations", ReservationMapTypeConverter.toString(shelter.reservations));
                 db.insert("shelters", OnConflictStrategy.IGNORE, cv);
             }
         }
@@ -70,4 +71,6 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract ShelterDao shelterDao();
 
     public abstract UserDao userDao();
+
+    public abstract ReservationDao reservationDao();
 }

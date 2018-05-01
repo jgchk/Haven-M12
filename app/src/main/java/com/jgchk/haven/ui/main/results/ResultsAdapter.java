@@ -15,16 +15,24 @@ import com.jgchk.haven.utils.AppLogger;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.ObservableConverter;
+import io.reactivex.subjects.PublishSubject;
+
 public class ResultsAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
     public static final int VIEW_TYPE_EMPTY = 0, VIEW_TYPE_NORMAL = 1;
 
     private final List<ResultsItemViewModel> mResultsList;
 
-    private ResultsAdapterListener mListener;
+    private final PublishSubject<Integer> onClickSubject = PublishSubject.create();
 
     public ResultsAdapter() {
         this.mResultsList = new ArrayList<>();
+    }
+
+    public Observable<Integer> getPositionClicks() {
+        return onClickSubject;
     }
 
     @Override
@@ -69,22 +77,13 @@ public class ResultsAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     public void addItems(List<Shelter> resultsList) {
         AppLogger.d("RESULTSADAPTER");
         for (Shelter shelter : resultsList) {
-            mResultsList.add(ResultsItemViewModel.fromShelter(shelter));
+            mResultsList.add(new ResultsItemViewModel(shelter.name, shelter.distance, shelter.vacancies));
         }
         notifyDataSetChanged();
     }
 
     public void clearItems() {
         mResultsList.clear();
-    }
-
-    public void setListener(ResultsAdapterListener listener) {
-        mListener = listener;
-    }
-
-    public interface ResultsAdapterListener {
-
-        void onRetryClick();
     }
 
     public class EmptyViewHolder extends BaseViewHolder {
@@ -103,7 +102,7 @@ public class ResultsAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         }
     }
 
-    public class ResultsViewHolder extends BaseViewHolder implements View.OnClickListener {
+    public class ResultsViewHolder extends BaseViewHolder {
 
         private final ItemResultsViewBinding mBinding;
 
@@ -117,11 +116,7 @@ public class ResultsAdapter extends RecyclerView.Adapter<BaseViewHolder> {
             final ResultsItemViewModel mResultsItemViewModel = mResultsList.get(position);
             mBinding.setViewModel(mResultsItemViewModel);
             mBinding.executePendingBindings();
-        }
-
-        @Override
-        public void onClick(View v) {
-            // TODO: open detail view
+            mBinding.getRoot().setOnClickListener(v -> onClickSubject.onNext(position));
         }
     }
 }

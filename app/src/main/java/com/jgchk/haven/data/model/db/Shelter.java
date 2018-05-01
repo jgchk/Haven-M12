@@ -1,18 +1,26 @@
 package com.jgchk.haven.data.model.db;
 
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.location.Location;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.jgchk.haven.data.model.others.Restriction;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity(tableName = "shelters")
-public class Shelter {
+public class Shelter implements Serializable {
 
     private static final double METERS_TO_MILES_CONVERSION_FACTOR = 0.000621371192;
 
@@ -33,9 +41,11 @@ public class Shelter {
 
     public Set<Restriction> restrictions;
 
-    public Map<User, Integer> reservations;
-
+    @Ignore
     public double distance;
+
+    @Ignore
+    public int vacancies;
 
     public Shelter(String name, int capacity, Location location,
                    String address, String notes, String phone, Set<Restriction> restrictions) {
@@ -46,22 +56,22 @@ public class Shelter {
         this.notes = notes;
         this.phone = phone;
         this.restrictions = restrictions;
-        this.reservations = new HashMap<>();
+//        this.reservations = new HashMap<>();
     }
 
-    public int getTotalReservations() {
-        int totalReservations = 0;
-        for (Integer reservations : reservations.values()) {
-            if (reservations != null) {
-                totalReservations += reservations;
-            }
-        }
-        return totalReservations;
-    }
+//    public int getTotalReservations() {
+//        int totalReservations = 0;
+//        for (Integer reservations : reservations.values()) {
+//            if (reservations != null) {
+//                totalReservations += reservations;
+//            }
+//        }
+//        return totalReservations;
+//    }
 
-    public int getVacancies() {
-        return capacity - getTotalReservations();
-    }
+//    public int getVacancies() {
+//        return capacity - getTotalReservations();
+//    }
 
     public double getDistanceInMiles(Location currentLocation) {
         return convertMetersToMiles(location.distanceTo(currentLocation));
@@ -70,6 +80,28 @@ public class Shelter {
     private double convertMetersToMiles(double meters) {
         return meters * METERS_TO_MILES_CONVERSION_FACTOR;
     }
+
+    public String getRestrictionsString() {
+        return restrictions.stream().map(Restriction::toString).collect(Collectors.joining(", "));
+    }
+
+//    public boolean reserve(User user, int numReservations) {
+//        if (reservations.containsKey(user)) {
+//            return false;
+//        }
+//
+//        reservations.put(user, numReservations);
+//        return true;
+//    }
+
+//    public boolean release(User user) {
+//        if (!reservations.containsKey(user)) {
+//            return false;
+//        }
+//
+//        reservations.remove(user);
+//        return true;
+//    }
 
     @Override
     public String toString() {
@@ -82,7 +114,6 @@ public class Shelter {
                 ", notes='" + notes + '\'' +
                 ", phone='" + phone + '\'' +
                 ", restrictions=" + restrictions +
-                ", reservations=" + reservations +
                 '}';
     }
 
@@ -103,5 +134,30 @@ public class Shelter {
     @Override
     public int hashCode() {
         return Objects.hash(name, capacity, location, address, notes, phone, restrictions);
+    }
+
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        oos.writeLong(id);
+        oos.writeObject(name);
+        oos.writeInt(capacity);
+        oos.writeObject(new Gson().toJson(location));
+        oos.writeObject(address);
+        oos.writeObject(notes);
+        oos.writeObject(phone);
+        oos.writeObject(restrictions);
+        oos.writeDouble(distance);
+    }
+
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+        id = ois.readLong();
+        name = (String) ois.readObject();
+        capacity = ois.readInt();
+        location = new Gson().fromJson((String) ois.readObject(), new TypeToken<Location>() {
+        }.getType());
+        address = (String) ois.readObject();
+        notes = (String) ois.readObject();
+        phone = (String) ois.readObject();
+        restrictions = (Set<Restriction>) ois.readObject();
+        distance = ois.readDouble();
     }
 }

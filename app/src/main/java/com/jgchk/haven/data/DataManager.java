@@ -4,20 +4,22 @@ import com.jgchk.haven.data.local.db.DbHelper;
 import com.jgchk.haven.data.local.location.LocationHelper;
 import com.jgchk.haven.data.local.prefs.PreferencesHelper;
 import com.jgchk.haven.data.model.db.Shelter;
+import com.jgchk.haven.data.model.db.User;
 import com.jgchk.haven.data.model.others.Restriction;
 
 import java.util.List;
 import java.util.Set;
 
 import io.reactivex.Observable;
+import io.reactivex.Single;
 
 public interface DataManager extends DbHelper, PreferencesHelper, LocationHelper {
 
-    Observable<List<Shelter>> getSheltersMatching(String name, int vacancy, Set<Restriction> restrictions);
+//    Single<List<Shelter>> getSheltersMatching(String name, int vacancy, Set<Restriction> restrictions);
 
     void setUserAsLoggedOut();
 
-    void updateUserInfo(LoggedInMode loggedInMode, String email);
+    void updateUserInfo(LoggedInMode loggedInMode, User user);
 
     enum LoggedInMode {
 

@@ -15,4 +15,12 @@ public interface DbHelper {
     Observable<Boolean> insertUser(final User user);
 
     Observable<List<Shelter>> getAllShelters();
+
+    Observable<Boolean> reserve(final Shelter shelter, final User user, final int numReservations);
+
+    Observable<Boolean> release(final Shelter shelter, final User user);
+
+    Observable<Integer> getVacancies(final Shelter shelter);
+
+    Observable<Integer> getReservations(final Shelter shelter, final User user);
 }

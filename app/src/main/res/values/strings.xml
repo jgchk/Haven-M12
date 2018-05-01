@@ -21,6 +21,7 @@
     <string name="main_menu_filter">Filter</string>
     <string name="main_menu_search_title">Search</string>
 
+    <string name="filter_vacancies_header">Vacancies</string>
     <string name="filter_gender_header">Gender</string>
     <string name="filter_age_header">Age</string>
     <string name="filter_family_header">Family</string>
@@ -32,4 +33,7 @@
     <string name="filter_cbFamilies_text">Families</string>
     <string name="filter_cbFamiliesWithNewborns_text">Families w/ Newborns</string>
     <string name="filter_cbVeterans_text">Veterans</string>
+    <string name="detail_tvVacancySpots_text">beds</string>
+    <string name="detail_btnVacancyClaim_text">Claim</string>
+    <string name="detail_btnVacancyRelease_text">Release</string>
 </resources>

@@ -6,7 +6,6 @@ import android.content.Context;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.jgchk.haven.R;
 import com.jgchk.haven.data.AppDataManager;
 import com.jgchk.haven.data.DataManager;
@@ -28,6 +27,8 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
+
+import static com.jgchk.haven.utils.AppConstants.GSON;
 
 @SuppressWarnings("TypeMayBeWeakened")
 @Module
@@ -81,7 +82,7 @@ public class AppModule {
     @Provides
     @Singleton
     Gson provideGson() {
-        return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+        return GSON;
     }
 
     @Provides

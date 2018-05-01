@@ -19,7 +19,7 @@ public class User {
     @ColumnInfo(name = "account_type")
     public AccountType accountType;
 
-    public User(String email, String password, AccountType accountType) {
+    public User(@NonNull String email, String password, AccountType accountType) {
         this.email = email;
         this.password = password;
         this.accountType = accountType;
@@ -38,6 +38,15 @@ public class User {
         public String toString() {
             return mString;
         }
+
+        public static AccountType fromString(String str) {
+            for (AccountType v : values()) {
+                if (v.toString().equalsIgnoreCase(str)) {
+                    return v;
+                }
+            }
+            throw new IllegalArgumentException("No enum constant " + str);
+        }
     }
 
     @Override
@@ -55,5 +64,14 @@ public class User {
     @Override
     public int hashCode() {
         return Objects.hash(email);
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", accountType=" + accountType +
+                '}';
     }
 }

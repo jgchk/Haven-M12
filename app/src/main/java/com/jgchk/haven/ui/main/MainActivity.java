@@ -1,9 +1,9 @@
 package com.jgchk.haven.ui.main;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Animatable;
@@ -16,18 +16,27 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.SearchView;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.jgchk.haven.BR;
 import com.jgchk.haven.R;
+import com.jgchk.haven.data.model.db.Shelter;
 import com.jgchk.haven.databinding.ActivityMainBinding;
 import com.jgchk.haven.ui.base.BaseActivity;
+import com.jgchk.haven.ui.detail.DetailActivity;
 import com.jgchk.haven.ui.login.LoginActivity;
 import com.jgchk.haven.ui.main.filter.FilterDialog;
 import com.jgchk.haven.ui.main.results.ResultsAdapter;
 import com.jgchk.haven.utils.AppLogger;
+
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -81,18 +90,18 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
-        SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        CustomSearchView searchView = (CustomSearchView) menu.findItem(R.id.search).getActionView();
+        searchView.setOnQueryTextListener(new CustomSearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                mMainViewModel.setNameFilter(query);
                 mMainViewModel.loadShelters();
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                mMainViewModel.setNameFilter(newText);
-                return true;
+                return false;
             }
         });
         return true;
@@ -128,6 +137,17 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
     }
 
     @Override
+    public void openDetailActivity(Shelter shelter) {
+        startActivityForResult(DetailActivity.newIntent(this, shelter), 0);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        mMainViewModel.loadShelters();
+    }
+
+    @Override
     public AndroidInjector<Fragment> supportFragmentInjector() {
         return fragmentDispatchingAndroidInjector;
     }
@@ -143,10 +163,41 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
     private void setUp() {
         setSupportActionBar(mActivityMainBinding.toolbar);
 
-        setUpMap();
-        setUpResultsView();
+        setupLocationServices();
 
+        setUpResultsView();
         subscribeToLiveData();
+    }
+
+    private void setupLocationServices() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
+            new AlertDialog.Builder(this)
+                    .setMessage("Haven needs your location to show the closest shelters to you!")
+                    .setNegativeButton("OK", (dialog, which) -> {
+                        dialog.dismiss();
+                        requestPermission(Manifest.permission.ACCESS_COARSE_LOCATION, MY_PERMISSIONS_REQUEST_COARSE_LOCATION);
+                    })
+                    .create()
+                    .show();
+        } else {
+            requestPermission(Manifest.permission.ACCESS_COARSE_LOCATION, MY_PERMISSIONS_REQUEST_COARSE_LOCATION);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == MY_PERMISSIONS_REQUEST_COARSE_LOCATION) {
+            if ((grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                // Permission granted
+            } else {
+                // Permission denied
+                // TODO: disable functionality related to location
+            }
+        }
+
+        setUpMap();
+        mMainViewModel.loadShelters();
     }
 
     private void setUpMap() {
@@ -155,23 +206,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
                     mGoogleMap = googleMap;
 
                     if (hasPermission(Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                        enableLocation();
-                    } else {
-                        if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                            // Show explanation asychronously
-                            // Try to request permission again once user sees
-                            // TODO: remove this from activity code
-                            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                            builder.setMessage("Haven needs your location to show the closest shelters to you!")
-                                    .setNegativeButton("OK", (dialog, which) -> {
-                                        dialog.dismiss();
-                                        requestPermission(Manifest.permission.ACCESS_COARSE_LOCATION, MY_PERMISSIONS_REQUEST_COARSE_LOCATION);
-                                    });
-                            builder.create().show();
-                        } else {
-                            // No explanation needed
-                            requestPermission(Manifest.permission.ACCESS_COARSE_LOCATION, MY_PERMISSIONS_REQUEST_COARSE_LOCATION);
-                        }
+                        mGoogleMap.setMyLocationEnabled(true);
                     }
                 });
     }
@@ -181,61 +216,49 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
         mActivityMainBinding.rvResults.setLayoutManager(mLayoutManager);
         mActivityMainBinding.rvResults.setItemAnimator(new DefaultItemAnimator());
         mActivityMainBinding.rvResults.setAdapter(mResultsAdapter);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == MY_PERMISSIONS_REQUEST_COARSE_LOCATION) {
-            if ((grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                // Permission granted
-                enableLocation();
-            } else {
-                // Permission denied
-                // TODO: disable functionality related to location
-            }
-        }
-    }
-
-    @SuppressLint("MissingPermission")
-    private void enableLocation() {
-        mGoogleMap.setMyLocationEnabled(true);
+        mMainViewModel.subscribeToShelterClicks(mResultsAdapter.getPositionClicks());
     }
 
     private void subscribeToLiveData() {
         mMainViewModel.getShelterData().observe(
                 this, shelters -> {
                     mMainViewModel.setShelterDataList(shelters);
-                    AppLogger.d(shelters.toString());
+                    setMarkers(shelters);
                 });
     }
 
-//    private void subscribeToLiveData() {
-//        mMainViewModel.getShelterData().
-//        mMainViewModel.getShelterData().observe(this, shelters -> {
-//            AppLogger.d("UPDATE!");
-//            setMapVisibleShelters(shelters);
-//            setResultsShelters(shelters);
-//        });
-//    }
+    private void setMarkers(List<Shelter> shelters) {
+        mGoogleMap.clear();
+        if (shelters == null || shelters.isEmpty()) return;
 
-//    private void setMapVisibleShelters(Iterable<Shelter> shelters) {
-//        if (shelters != null && mGoogleMap != null) {
-//            mGoogleMap.clear();
-//            for (Shelter shelter : shelters) {
-//                mGoogleMap.addMarker(new MarkerOptions()
-//                        .position(new LatLng(shelter.location.getLatitude(), shelter.location.getLongitude()))
-//                        .title(shelter.name).snippet(shelter.phone));
-//            }
-//
-//            mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(
-//                    getResources().getInteger(R.integer.googleMaps_zoom_default)));
-//        }
-//    }
+        LatLngBounds.Builder builder = LatLngBounds.builder();
+        for (Shelter shelter : shelters) {
+            MarkerOptions marker = new MarkerOptions()
+                    .position(new LatLng(shelter.location.getLatitude(), shelter.location.getLongitude()))
+                    .title(shelter.name)
+                    .snippet(shelter.phone);
+            mGoogleMap.addMarker(marker);
+            builder.include(marker.getPosition());
+        }
+        LatLngBounds bounds = builder.build();
 
-//    private void setResultsShelters(List<Shelter> shelters) {
-//        if (shelters != null) {
-//            mResultsAdapter.setItems(mMainViewModel.getViewModelList(shelters));
-//        }
-//    }
+        int padding = 10;
+        CameraUpdate cu;
+        if (shelters.size() == 1) {
+            cu = CameraUpdateFactory.newLatLng(new LatLng(shelters.get(0).location.getLatitude(),
+                    shelters.get(0).location.getLongitude()));
+        } else {
+            cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+        }
+
+        mGoogleMap.moveCamera(cu);
+        mGoogleMap.animateCamera(cu);
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        mMainViewModel.setVacanciesFilter();
+        mMainViewModel.setRestrictionsFilter();
+        mMainViewModel.loadShelters();
+    }
 }
